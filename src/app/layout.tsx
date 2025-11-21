@@ -4,6 +4,14 @@ import Footer from "@components/ui/footer";
 import GlobalNav from "@components/ui/global-nav";
 import type { ReactNode } from "react";
 import { Providers } from "./provider";
+import { Figtree } from "next/font/google";
+
+const figtree = Figtree({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  display: "swap",
+  variable: "--font-figtree",
+});
 
 export const metadata = {
   title: "Next.js 16 Fullstack Template",
@@ -12,7 +20,15 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="ko" className="h-full">
+    <html lang="ko" className={`h-full ${figtree.variable}`}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="flex min-h-full flex-col bg-white antialiased">
         <Providers>
           <div className="fixed inset-0 -z-10 h-full w-full bg-white bg-grid-slate-100 [mask-image:linear-gradient(to_bottom,white,transparent)]" />

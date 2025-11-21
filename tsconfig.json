@@ -36,6 +36,9 @@
     "incremental": true,
     "baseUrl": "./src",
     "paths": {
+      "@/*": [
+        "./*"
+      ],
       "@requests/*": [
         "./requests/*"
       ],
