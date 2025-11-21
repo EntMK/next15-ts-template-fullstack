@@ -7,6 +7,16 @@
 body {
   overflow-x: hidden;
   overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 모바일 터치 최적화 */
+@media (hover: none) and (pointer: coarse) {
+  * {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
 }
 
 /* 배경 */
@@ -740,6 +750,7 @@ html.lenis {
 
   .step__title {
     margin-left: -150px;
+    font-size: 40px;
   }
 
   .step-hatch__images {
@@ -761,44 +772,318 @@ html.lenis {
     width: 320px;
     height: 320px;
   }
+
+  .step-item__number {
+    font-size: 220px;
+  }
+}
+
+@media screen and (max-width: 992px) {
+  .container {
+    padding: 0 16px;
+  }
+
+  .step-section {
+    padding: 100px 0;
+  }
+
+  .step__box {
+    padding-left: 60px;
+  }
+
+  .step__title {
+    font-size: 36px;
+    margin-left: -120px;
+  }
+
+  .step-item__number {
+    font-size: 180px;
+    left: 20px;
+  }
+
+  .step-item__title {
+    font-size: 28px;
+  }
+
+  .step-item__text {
+    font-size: 16px;
+  }
+
+  .step__btn {
+    height: 48px;
+    font-size: 18px;
+    padding: 0 20px;
+  }
 }
 
 @media screen and (max-width: 768px) {
+  #title {
+    font-size: 18px;
+    left: 16px;
+    top: 20px;
+    letter-spacing: 2px;
+  }
+
+  #frame-counter {
+    font-size: 11px;
+    padding: 8px 16px;
+    right: 16px;
+    top: 20px;
+  }
+
+  #scroll-indicator {
+    font-size: 12px;
+    bottom: 20px;
+  }
+
+  .step-section {
+    padding: 80px 0;
+  }
+
+  .step__wrap {
+    margin-top: 80px;
+  }
+
+  .step__box {
+    padding-left: 0;
+  }
+
+  .step__title {
+    font-size: 32px;
+    margin-left: 0;
+    margin-bottom: 40px;
+  }
+
   .step__row {
     flex-direction: column;
+    gap: 60px;
   }
 
   .step-item {
     max-width: 100%;
-    padding-top: 100px;
+    padding-top: 80px;
+  }
+
+  .step-item__number {
+    font-size: 140px;
+    left: 10px;
+    top: -10px;
+  }
+
+  .step-item__date {
+    font-size: 16px;
+  }
+
+  .step-item__title {
+    font-size: 24px;
+  }
+
+  .step-item__text {
+    font-size: 15px;
+  }
+
+  .step__images {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .step__nft {
+    margin-left: 0;
+    margin-top: 40px;
+  }
+
+  .step__nft svg {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+  }
+
+  .step__spawn--1 {
+    width: 150px;
+    right: 5%;
+    top: 10%;
+  }
+
+  .step__spawn--2 {
+    width: 200px;
+    right: 10%;
+    top: -20%;
+  }
+
+  .step__spawn--3 {
+    width: 160px;
+    right: 0%;
+    bottom: 0%;
   }
 
   .step-hatch {
     flex-direction: column !important;
+    gap: 40px;
   }
 
   .step-hatch__images {
-    width: 200px;
-    height: 200px;
+    width: 180px;
+    height: 180px;
+    margin: 0 auto;
   }
 
   .step-hatch__skin {
-    width: 280px;
-    height: 158px;
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    aspect-ratio: 16/9;
+    margin: 0 auto;
   }
 
   .step__trade {
     flex-direction: column;
+    gap: 40px;
   }
 
   .step__trade-images {
-    width: 300px;
-    height: 300px;
+    width: 100%;
+    max-width: 350px;
+    height: 400px;
+    margin: 0 auto;
   }
 
   .step__trade-skin {
-    width: 280px;
-    height: 280px;
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    aspect-ratio: 1;
+    margin: 0 auto;
+  }
+
+  .step__product {
+    transform: scale(0.8);
+  }
+
+  .step__product--1 {
+    width: 120px;
+    height: 150px;
+    left: 40%;
+  }
+
+  .step__product--2 {
+    width: 130px;
+    height: 170px;
+    left: 30%;
+  }
+
+  .step__product--3 {
+    width: 110px;
+    height: 140px;
+    left: 35%;
+  }
+
+  .step__product--4 {
+    width: 125px;
+    height: 160px;
+    left: 12%;
+  }
+
+  .step__product--5 {
+    width: 115px;
+    height: 150px;
+    left: 5%;
+  }
+
+  .step__product--6 {
+    width: 120px;
+    height: 155px;
+    left: 10%;
+  }
+
+  /* Step line 모바일에서 숨기기 */
+  .step-overflow {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  #title {
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+
+  #progress-bar {
+    width: 200px;
+  }
+
+  .step-section {
+    padding: 60px 0;
+  }
+
+  .step__title {
+    font-size: 28px;
+  }
+
+  .step-item {
+    padding-top: 60px;
+  }
+
+  .step-item__number {
+    font-size: 100px;
+    left: 5px;
+    top: -5px;
+  }
+
+  .step-item__date {
+    font-size: 14px;
+  }
+
+  .step-item__title {
+    font-size: 22px;
+  }
+
+  .step-item__text {
+    font-size: 14px;
+  }
+
+  .step__btn {
+    height: 44px;
+    font-size: 16px;
+    padding: 0 18px;
+  }
+
+  .step__nft svg {
+    max-width: 250px;
+  }
+
+  .step__spawn--1 {
+    width: 120px;
+  }
+
+  .step__spawn--2 {
+    width: 160px;
+  }
+
+  .step__spawn--3 {
+    width: 130px;
+  }
+
+  .step-hatch__images {
+    width: 150px;
+    height: 150px;
+  }
+
+  .step-hatch__skin {
+    max-width: 280px;
+  }
+
+  .step__trade-images {
+    max-width: 280px;
+    height: 320px;
+  }
+
+  .step__trade-skin {
+    max-width: 280px;
+  }
+
+  .stay__ribs img {
+    width: 300px;
   }
 }
 
@@ -1110,13 +1395,47 @@ html.lenis {
   animation-delay: 3.5s;
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 992px) {
   .stay__title {
-    font-size: 48px;
+    font-size: 56px;
+  }
+
+  .stay__socials {
+    gap: 35px;
+    margin-bottom: 60px;
+  }
+
+  .stay-link {
+    width: 70px;
+    height: 70px;
+  }
+
+  .stay__ribs img {
+    width: 500px;
+  }
+
+  .stay-trash {
+    transform: scale(0.9);
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .stay__content {
+    padding: 80px 0;
+  }
+
+  .stay__wrap {
+    min-height: 70vh;
+  }
+
+  .stay__title {
+    font-size: 42px;
+    margin-bottom: 40px;
   }
 
   .stay__socials {
     gap: 30px;
+    margin-bottom: 50px;
   }
 
   .stay-link {
@@ -1124,8 +1443,32 @@ html.lenis {
     height: 60px;
   }
 
+  .stay__ribs img {
+    width: 400px;
+  }
+
   .stay-trash {
     display: none;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .stay__title {
+    font-size: 36px;
+    letter-spacing: 1px;
+  }
+
+  .stay__socials {
+    gap: 24px;
+  }
+
+  .stay-link {
+    width: 50px;
+    height: 50px;
+  }
+
+  .stay__ribs img {
+    width: 250px;
   }
 }
 

@@ -17,6 +17,8 @@ export default function VideoScroll({ videoUrl, sectionId, className = "" }: Vid
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
   const frameIdRef = useRef<number>();
+  const lastTimeRef = useRef<number>(0);
+  const targetTimeRef = useRef<number>(0);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -25,19 +27,29 @@ export default function VideoScroll({ videoUrl, sectionId, className = "" }: Vid
 
     if (!video || !canvas || !section) return;
 
+    // 모바일 감지
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
     const ctx = canvas.getContext("2d", {
       alpha: false,
       desynchronized: true,
+      willReadFrequently: false,
     });
 
     if (!ctx) return;
 
+    // 비디오 프리로딩 개선
+    video.preload = "auto";
+    video.load();
+
     // 캔버스 크기 설정
     const updateCanvasSize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const dpr = isMobile ? 1 : Math.min(window.devicePixelRatio, 2);
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
       canvas.style.width = '100%';
       canvas.style.height = '100%';
+      ctx.scale(dpr, dpr);
     };
 
     updateCanvasSize();
@@ -48,11 +60,15 @@ export default function VideoScroll({ videoUrl, sectionId, className = "" }: Vid
     const drawFrame = () => {
       if (!video || !canvas || !ctx) return;
 
+      const dpr = isMobile ? 1 : Math.min(window.devicePixelRatio, 2);
+      const displayWidth = window.innerWidth;
+      const displayHeight = window.innerHeight;
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // 비디오를 캔버스 크기에 맞춰 그리기 (cover 효과)
       const videoAspect = video.videoWidth / video.videoHeight;
-      const canvasAspect = canvas.width / canvas.height;
+      const canvasAspect = displayWidth / displayHeight;
 
       let sx = 0, sy = 0, sWidth = video.videoWidth, sHeight = video.videoHeight;
 
@@ -69,7 +85,7 @@ export default function VideoScroll({ videoUrl, sectionId, className = "" }: Vid
       ctx.drawImage(
         video,
         sx, sy, sWidth, sHeight,
-        0, 0, canvas.width, canvas.height
+        0, 0, displayWidth, displayHeight
       );
 
       // requestVideoFrameCallback 사용 (지원되는 경우)
@@ -90,46 +106,79 @@ export default function VideoScroll({ videoUrl, sectionId, className = "" }: Vid
 
       // 초기 프레임 그리기
       video.currentTime = 0;
-      drawFrame();
 
-      // GSAP ScrollTrigger 설정
-      let animationFrameId: number | null = null;
-      let lastUpdateTime = 0;
+      // 비디오 버퍼링 강제 - 더 나은 성능을 위해
+      const bufferVideo = async () => {
+        try {
+          // 비디오의 여러 지점을 미리 로드
+          const seekPoints = [0, videoDuration * 0.25, videoDuration * 0.5, videoDuration * 0.75];
+          for (const point of seekPoints) {
+            video.currentTime = point;
+            await new Promise(resolve => setTimeout(resolve, 50));
+          }
+          video.currentTime = 0;
+        } catch (error) {
+          console.warn("Video buffering failed:", error);
+        }
+        drawFrame();
+      };
+
+      bufferVideo();
+
+      // GSAP ScrollTrigger 설정 - 부드러운 보간 사용
+      const lerp = (start: number, end: number, factor: number) => {
+        return start + (end - start) * factor;
+      };
+
+      let isUpdating = false;
+
+      const smoothUpdate = () => {
+        if (!isUpdating || !video) return;
+
+        const current = video.currentTime;
+        const target = targetTimeRef.current;
+        const diff = Math.abs(target - current);
+
+        // 큰 점프는 즉시 이동, 작은 차이는 부드럽게 보간
+        if (diff > 0.5) {
+          video.currentTime = target;
+        } else if (diff > 0.001) {
+          // lerp factor를 조정해서 더 부드럽게
+          const lerpFactor = isMobile ? 0.15 : 0.2;
+          video.currentTime = lerp(current, target, lerpFactor);
+        }
+
+        requestAnimationFrame(smoothUpdate);
+      };
 
       ScrollTrigger.create({
         trigger: section,
         start: "top top",
-        end: "+=500%",
+        end: isMobile ? "+=400%" : "+=500%",
         pin: true,
         pinSpacing: true,
-        scrub: 1.5,
+        scrub: isMobile ? 0.8 : 1.2,
         anticipatePin: 1,
         invalidateOnRefresh: true,
         fastScrollEnd: true,
         preventOverlaps: true,
+        onEnter: () => {
+          isUpdating = true;
+          smoothUpdate();
+        },
+        onLeave: () => {
+          isUpdating = false;
+        },
+        onEnterBack: () => {
+          isUpdating = true;
+          smoothUpdate();
+        },
+        onLeaveBack: () => {
+          isUpdating = false;
+        },
         onUpdate: (self) => {
           currentProgress = self.progress;
-          const targetTime = self.progress * (videoDuration - 0.05);
-          const now = performance.now();
-
-          // 프레임 드롭 방지를 위한 throttle (16ms ~ 60fps)
-          if (now - lastUpdateTime < 16) {
-            if (animationFrameId) {
-              cancelAnimationFrame(animationFrameId);
-            }
-
-            animationFrameId = requestAnimationFrame(() => {
-              if (Math.abs(video.currentTime - targetTime) > 0.01) {
-                video.currentTime = targetTime;
-              }
-              lastUpdateTime = performance.now();
-            });
-          } else {
-            if (Math.abs(video.currentTime - targetTime) > 0.01) {
-              video.currentTime = targetTime;
-            }
-            lastUpdateTime = now;
-          }
+          targetTimeRef.current = self.progress * (videoDuration - 0.05);
         },
         onRefresh: () => {
           updateCanvasSize();
@@ -179,6 +228,12 @@ export default function VideoScroll({ videoUrl, sectionId, className = "" }: Vid
           preload="auto"
           crossOrigin="anonymous"
           style={{ display: "none" }}
+          // 추가 최적화 속성
+          disablePictureInPicture
+          disableRemotePlayback
+          x5-video-player-type="h5"
+          x5-video-player-fullscreen="true"
+          webkit-playsinline="true"
         />
         <div className="video-placeholder" />
       </div>
