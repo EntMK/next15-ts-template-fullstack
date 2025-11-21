@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import StepSections from "@/components/3d-scroll/StepSections";
+import Bubbles from "@/components/3d-scroll/Bubbles";
 import "@/styles/3d-scroll.css";
 import Lenis from "lenis";
 import gsap from "gsap";
@@ -48,6 +49,7 @@ export default function ThreeDScrollPage() {
         fontWeight: 500,
       }}
     >
+      <Bubbles />
       <StepSections />
     </div>
   );
