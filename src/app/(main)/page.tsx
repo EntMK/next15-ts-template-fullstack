@@ -50,7 +50,7 @@ export default function MainPage() {
       </div>
 
       <div className="mx-auto max-w-7xl px-6 lg:px-8 pb-24">
-        <div className="grid grid-cols-1 gap-y-16 gap-x-8 text-center lg:grid-cols-3">
+        <dl className="grid grid-cols-1 gap-y-16 gap-x-8 text-center lg:grid-cols-3">
           <FeatureCard
             title="Type Safe"
             description="Built with strict TypeScript configuration for reliable code."
@@ -63,7 +63,7 @@ export default function MainPage() {
             title="Scalable"
             description="Designed with a clean folder structure for growth."
           />
-        </div>
+        </dl>
       </div>
     </main>
   );

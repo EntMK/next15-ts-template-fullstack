@@ -34,16 +34,10 @@ export default function VideoScroll({ videoUrl, sectionId, className = "" }: Vid
 
     // 캔버스 크기 설정
     const updateCanvasSize = () => {
-      const dpr = window.devicePixelRatio || 1;
-      const rect = canvas.getBoundingClientRect();
-
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-
-      canvas.style.width = `${rect.width}px`;
-      canvas.style.height = `${rect.height}px`;
-
-      ctx.scale(dpr, dpr);
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
     };
 
     updateCanvasSize();
@@ -54,12 +48,11 @@ export default function VideoScroll({ videoUrl, sectionId, className = "" }: Vid
     const drawFrame = () => {
       if (!video || !canvas || !ctx) return;
 
-      const rect = canvas.getBoundingClientRect();
-      ctx.clearRect(0, 0, rect.width, rect.height);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // 비디오를 캔버스 크기에 맞춰 그리기 (cover 효과)
       const videoAspect = video.videoWidth / video.videoHeight;
-      const canvasAspect = rect.width / rect.height;
+      const canvasAspect = canvas.width / canvas.height;
 
       let sx = 0, sy = 0, sWidth = video.videoWidth, sHeight = video.videoHeight;
 
@@ -76,7 +69,7 @@ export default function VideoScroll({ videoUrl, sectionId, className = "" }: Vid
       ctx.drawImage(
         video,
         sx, sy, sWidth, sHeight,
-        0, 0, rect.width, rect.height
+        0, 0, canvas.width, canvas.height
       );
 
       // requestVideoFrameCallback 사용 (지원되는 경우)
@@ -100,13 +93,16 @@ export default function VideoScroll({ videoUrl, sectionId, className = "" }: Vid
       drawFrame();
 
       // GSAP ScrollTrigger 설정
+      let animationFrameId: number | null = null;
+      let lastUpdateTime = 0;
+
       ScrollTrigger.create({
         trigger: section,
         start: "top top",
-        end: "+=400%",
+        end: "+=500%",
         pin: true,
         pinSpacing: true,
-        scrub: 0.8,
+        scrub: 1.5,
         anticipatePin: 1,
         invalidateOnRefresh: true,
         fastScrollEnd: true,
@@ -114,10 +110,25 @@ export default function VideoScroll({ videoUrl, sectionId, className = "" }: Vid
         onUpdate: (self) => {
           currentProgress = self.progress;
           const targetTime = self.progress * (videoDuration - 0.05);
+          const now = performance.now();
 
-          // 부드러운 전환
-          if (Math.abs(video.currentTime - targetTime) > 0.02) {
-            video.currentTime = targetTime;
+          // 프레임 드롭 방지를 위한 throttle (16ms ~ 60fps)
+          if (now - lastUpdateTime < 16) {
+            if (animationFrameId) {
+              cancelAnimationFrame(animationFrameId);
+            }
+
+            animationFrameId = requestAnimationFrame(() => {
+              if (Math.abs(video.currentTime - targetTime) > 0.01) {
+                video.currentTime = targetTime;
+              }
+              lastUpdateTime = performance.now();
+            });
+          } else {
+            if (Math.abs(video.currentTime - targetTime) > 0.01) {
+              video.currentTime = targetTime;
+            }
+            lastUpdateTime = now;
           }
         },
         onRefresh: () => {
